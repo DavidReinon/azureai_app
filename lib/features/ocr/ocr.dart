@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:image_picker_platform_interface/image_picker_platform_interface.dart';
+import 'package:flutter/services.dart';
 
 class Ocr extends StatelessWidget {
   const Ocr({super.key});
@@ -65,14 +66,16 @@ class _ResultTextContainerState extends State<ResultTextContainer> {
           children: [
             ElevatedButton(
               onPressed: () {
-                // Add your button 1 logic here
+                setState(() {
+                  _resultText = '';
+                });
               },
               child: const Text('CLEAR'),
             ),
             const SizedBox(width: 15),
             ElevatedButton(
               onPressed: () {
-                // Add your button 2 logic here
+                Clipboard.setData(ClipboardData(text: _resultText));
               },
               child: const Text('COPY ALL'),
             ),
@@ -234,6 +237,10 @@ class ImageWithBorder extends StatelessWidget {
   final String imagePath;
   final double width;
   final BoxFit fit;
+
+  getImagePath() {
+    return imagePath;
+  }
 
   @override
   Widget build(BuildContext context) {
