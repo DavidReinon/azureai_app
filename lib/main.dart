@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
-import 'features/ocr/ocr.dart';
+import 'features/ocr/widgets/ocr.dart';
 import 'features/settings/settings.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
-void main() {
+Future main() async {
+  await dotenv.load(fileName: ".env");
   runApp(const MyApp());
 }
 
