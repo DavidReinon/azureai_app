@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'features/ocr/widgets/ocr.dart';
+import 'features/ocr/widgets/ocr_screen.dart';
 import 'features/settings/settings.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 

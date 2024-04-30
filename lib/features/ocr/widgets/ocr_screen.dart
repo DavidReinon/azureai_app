@@ -1,44 +1,45 @@
 import 'dart:async';
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:flutter/services.dart';
+import 'package:provider/provider.dart';
+import '../services/azure_ocr_service.dart';
+import '../models/result_text_model.dart';
 
 class Ocr extends StatelessWidget {
   const Ocr({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return const Column(
-      children: [
-        Padding(
-          padding: EdgeInsets.all(12),
-          child: Text(
+    return ChangeNotifierProvider(
+      create: (context) => ResultTextModel(),
+      child: const Column(
+        children: [
+          Padding(
+            padding: EdgeInsets.all(12),
+            child: Text(
+              'Optical Character Recognition',
               textAlign: TextAlign.center,
               style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-              'Optical Character Recognition'),
-        ),
-        DemoImages(),
-        SelectImageIcons(),
-        ResultTextContainer(),
-      ],
+            ),
+          ),
+          DemoImages(),
+          SelectImageIcons(),
+          ResultTextContainer(),
+        ],
+      ),
     );
   }
 }
 
-class ResultTextContainer extends StatefulWidget {
-  const ResultTextContainer({
-    super.key,
-  });
-
-  @override
-  State<ResultTextContainer> createState() => _ResultTextContainerState();
-}
-
-class _ResultTextContainerState extends State<ResultTextContainer> {
-  String _resultText = '';
+class ResultTextContainer extends StatelessWidget {
+  const ResultTextContainer({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final resultText = context.watch<ResultTextModel>().resultText;
+
     return Column(
       children: [
         SingleChildScrollView(
@@ -54,7 +55,7 @@ class _ResultTextContainerState extends State<ResultTextContainer> {
               ),
             ),
             child: Text(
-              _resultText,
+              resultText,
               style: const TextStyle(fontSize: 16),
             ),
           ),
@@ -64,16 +65,14 @@ class _ResultTextContainerState extends State<ResultTextContainer> {
           children: [
             ElevatedButton(
               onPressed: () {
-                setState(() {
-                  _resultText = '';
-                });
+                context.read<ResultTextModel>().clearResult();
               },
               child: const Text('CLEAR'),
             ),
             const SizedBox(width: 15),
             ElevatedButton(
               onPressed: () {
-                Clipboard.setData(ClipboardData(text: _resultText));
+                Clipboard.setData(ClipboardData(text: resultText));
               },
               child: const Text('COPY ALL'),
             ),
@@ -85,9 +84,7 @@ class _ResultTextContainerState extends State<ResultTextContainer> {
 }
 
 class SelectImageIcons extends StatelessWidget {
-  const SelectImageIcons({
-    super.key,
-  });
+  const SelectImageIcons({super.key});
 
   Future<XFile?> _openCamera() async {
     final picker = ImagePicker();
@@ -108,9 +105,10 @@ class SelectImageIcons extends StatelessWidget {
         const Padding(
           padding: EdgeInsets.fromLTRB(8.0, 8, 8.0, 3.0),
           child: Text(
-              textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 10, fontStyle: FontStyle.italic),
-              'You can use the camera or gallery to select an image. '),
+            'You can use the camera or gallery to select an image.',
+            textAlign: TextAlign.center,
+            style: TextStyle(fontSize: 10, fontStyle: FontStyle.italic),
+          ),
         ),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -176,9 +174,7 @@ class ButtonWithText extends StatelessWidget {
 }
 
 class DemoImages extends StatelessWidget {
-  const DemoImages({
-    super.key,
-  });
+  const DemoImages({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -187,9 +183,10 @@ class DemoImages extends StatelessWidget {
         const Padding(
           padding: EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
           child: Text(
-              textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 10, fontStyle: FontStyle.italic),
-              'Here are some sample images you can try (Tap): '),
+            'Here are some sample images you can try (Tap):',
+            textAlign: TextAlign.center,
+            style: TextStyle(fontSize: 10, fontStyle: FontStyle.italic),
+          ),
         ),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -236,15 +233,13 @@ class ImageWithBorder extends StatelessWidget {
   final double width;
   final BoxFit fit;
 
-  getImagePath() {
-    return imagePath;
-  }
-
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () {
-        // Add your image tap logic here
+      onTap: () async {
+        final File image = File(imagePath);
+        final String resultText = await ocrResponse(image);
+        context.read<ResultTextModel>().setResult(resultText);
       },
       child: Container(
         decoration: BoxDecoration(
