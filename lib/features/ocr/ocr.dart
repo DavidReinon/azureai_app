@@ -1,5 +1,8 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:image_picker_platform_interface/image_picker_platform_interface.dart';
 
 class Ocr extends StatelessWidget {
   const Ocr({super.key});
@@ -85,51 +88,6 @@ class SelectImageIcons extends StatelessWidget {
     super.key,
   });
 
-
-  @override
-  Widget build(BuildContext context) {
-    return const Column(
-      children: [
-        Padding(
-          padding: EdgeInsets.fromLTRB(8.0, 8, 8.0, 3.0),
-          child: Text(
-              textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 10, fontStyle: FontStyle.italic),
-              'You can use the camera or gallery to select an image. '),
-        ),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            ButtonWithText(
-              color: Color.fromARGB(255, 33, 219, 39),
-              icon: Icons.camera_alt,
-              label: 'Camera',
-            ),
-            SizedBox(width: 15),
-            ButtonWithText(
-              color: Color.fromARGB(255, 36, 125, 18),
-              icon: Icons.image,
-              label: 'Gallery',
-            ),
-          ],
-        ),
-      ],
-    );
-  }
-}
-
-class ButtonWithText extends StatelessWidget {
-  const ButtonWithText({
-    super.key,
-    required this.color,
-    required this.icon,
-    required this.label,
-  });
-
-  final Color color;
-  final IconData icon;
-  final String label;
-
   Future<XFile?> _openCamera() async {
     final picker = ImagePicker();
     XFile? pickedFile = await picker.pickImage(source: ImageSource.camera);
@@ -144,9 +102,58 @@ class ButtonWithText extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    return Column(
+      children: [
+        const Padding(
+          padding: EdgeInsets.fromLTRB(8.0, 8, 8.0, 3.0),
+          child: Text(
+              textAlign: TextAlign.center,
+              style: TextStyle(fontSize: 10, fontStyle: FontStyle.italic),
+              'You can use the camera or gallery to select an image. '),
+        ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            ButtonWithText(
+              color: const Color.fromARGB(255, 33, 219, 39),
+              icon: Icons.camera_alt,
+              label: 'Camera',
+              onTap: _openCamera,
+            ),
+            const SizedBox(width: 15),
+            ButtonWithText(
+              color: const Color.fromARGB(255, 36, 125, 18),
+              icon: Icons.image,
+              label: 'Gallery',
+              onTap: _openGallery,
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+}
+
+class ButtonWithText extends StatelessWidget {
+  const ButtonWithText({
+    super.key,
+    required this.color,
+    required this.icon,
+    required this.label,
+    this.onTap,
+  });
+
+  final Color color;
+  final IconData icon;
+  final String label;
+  final Future<XFile?> Function()? onTap;
+
+  @override
+  Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        _openGallery();
+        //stateful logic for button tap animation
+        onTap!();
       },
       child: Column(
         mainAxisSize: MainAxisSize.min,
