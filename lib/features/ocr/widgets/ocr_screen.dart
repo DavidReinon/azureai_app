@@ -286,24 +286,3 @@ class ImageWithBorder extends StatelessWidget {
   }
 }
 
-/*
-import 'package:flutter/services.dart' show rootBundle;
-import 'dart:typed_data';
-
-class ImageWithBorder extends StatelessWidget {
-  // Resto del código...
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () async {
-        final ByteData bytes = await rootBundle.load(imagePath);
-        final Uint8List imageBytes = bytes.buffer.asUint8List();
-        final String resultText = await ocrRead(imageBytes);
-        context.read<ResultTextModel>().setResult(resultText);
-      },
-      // Resto del código...
-    );
-  }
-}
-*/
