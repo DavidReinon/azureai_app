@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
@@ -6,6 +7,8 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import '../services/azure_ocr_service.dart';
 import '../models/result_text_model.dart';
+
+final azureOcrService = AzureOcrService();
 
 class Ocr extends StatelessWidget {
   const Ocr({super.key});
@@ -16,6 +19,7 @@ class Ocr extends StatelessWidget {
       create: (context) => ResultTextModel(),
       child: const Column(
         children: [
+          //Hacer otro Widget aparte para el título
           Padding(
             padding: EdgeInsets.all(12),
             child: Text(
@@ -56,7 +60,7 @@ class ResultTextContainer extends StatelessWidget {
             ),
             child: Text(
               resultText,
-              style: const TextStyle(fontSize: 16),
+              style: const TextStyle(fontSize: 12),
             ),
           ),
         ),
@@ -147,12 +151,27 @@ class ButtonWithText extends StatelessWidget {
   final String label;
   final Future<XFile?> Function()? onTap;
 
+  useOcrWithDeviceImage(XFile? imageFile) async {
+    if (imageFile == null) {
+      return;
+    }
+
+    final File image = File(imageFile.path);
+    final Uint8List imageBytes = await image.readAsBytes();
+    Map<String, dynamic>? result =
+        await azureOcrService.processImage(imageBytes);
+    return result;
+  }
+
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () {
+      onTap: () async {
         //stateful logic for button tap animation
-        onTap!();
+        XFile? image = await onTap!();
+        final Map<String, dynamic>? resultText =
+            await useOcrWithDeviceImage(image);
+        context.read<ResultTextModel>().setResult(resultText.toString());
       },
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -233,13 +252,22 @@ class ImageWithBorder extends StatelessWidget {
   final double width;
   final BoxFit fit;
 
+  Future<Map<String, dynamic>?> useOcrWithAssetsImage() async {
+    final ByteData bytes = await rootBundle.load(imagePath);
+    final Uint8List imageBytes = bytes.buffer.asUint8List();
+
+    Map<String, dynamic>? result;
+    result = await azureOcrService.processImage(imageBytes);
+
+    return result;
+  }
+
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () async {
-        final File image = File(imagePath);
-        final String resultText = await ocrResponse(image);
-        context.read<ResultTextModel>().setResult(resultText);
+        final Map<String, dynamic>? resultText = await useOcrWithAssetsImage();
+        context.read<ResultTextModel>().setResult(resultText.toString());
       },
       child: Container(
         decoration: BoxDecoration(
@@ -257,3 +285,25 @@ class ImageWithBorder extends StatelessWidget {
     );
   }
 }
+
+/*
+import 'package:flutter/services.dart' show rootBundle;
+import 'dart:typed_data';
+
+class ImageWithBorder extends StatelessWidget {
+  // Resto del código...
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () async {
+        final ByteData bytes = await rootBundle.load(imagePath);
+        final Uint8List imageBytes = bytes.buffer.asUint8List();
+        final String resultText = await ocrRead(imageBytes);
+        context.read<ResultTextModel>().setResult(resultText);
+      },
+      // Resto del código...
+    );
+  }
+}
+*/
