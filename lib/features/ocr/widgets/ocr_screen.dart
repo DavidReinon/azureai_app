@@ -171,7 +171,9 @@ class ButtonWithText extends StatelessWidget {
         XFile? image = await onTap!();
         final Map<String, dynamic>? resultText =
             await useOcrWithDeviceImage(image);
-        context.read<ResultTextModel>().setResult(resultText);
+        if (context.mounted) {
+          context.read<ResultTextModel>().setResult(resultText);
+        }
       },
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -267,7 +269,9 @@ class ImageWithBorder extends StatelessWidget {
     return GestureDetector(
       onTap: () async {
         final Map<String, dynamic>? resultText = await useOcrWithAssetsImage();
-        context.read<ResultTextModel>().setResult(resultText);
+        if (context.mounted) {
+          context.read<ResultTextModel>().setResult(resultText);
+        }
       },
       child: Container(
         decoration: BoxDecoration(
