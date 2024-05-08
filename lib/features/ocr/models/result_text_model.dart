@@ -4,9 +4,16 @@ import 'package:flutter/material.dart';
 class ResultTextModel extends ChangeNotifier {
   String? _resultText;
   Map<String, dynamic>? _jsonResult;
+  bool loading = false;
 
   String? get resultText => _resultText;
   Map<String, dynamic>? get jsonResult => _jsonResult;
+  bool get isLoading => loading;
+
+  void setLoading() {
+    loading = true;
+    notifyListeners();
+  }
 
   String _processJsonResult() {
     if (_jsonResult == null) {
@@ -83,8 +90,7 @@ class ResultTextModel extends ChangeNotifier {
     // Process the JSON result
     final analyzeResult =
         (_jsonResult?['analyzeResult'] as Map<String, dynamic>);
-    final readResults =
-        analyzeResult['readResults'] as List<dynamic>;
+    final readResults = analyzeResult['readResults'] as List<dynamic>;
     final lines = readResults[0]['lines'] as List<dynamic>;
 
     final List<String> processedLines = lines.map((oneLine) {
@@ -99,6 +105,7 @@ class ResultTextModel extends ChangeNotifier {
   void setResult(Map<String, dynamic>? result) {
     _jsonResult = result;
     _resultText = _processJsonResult();
+    loading = false;
     notifyListeners();
   }
 

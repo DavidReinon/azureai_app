@@ -57,12 +57,7 @@ class ResultTextContainer extends StatelessWidget {
               width: 2,
             ),
           ),
-          child: SingleChildScrollView(
-            child: Text(
-              resultText ?? '',
-              style: const TextStyle(fontSize: 14),
-            ),
-          ),
+          child: const DisplayResult(),
         ),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -83,6 +78,37 @@ class ResultTextContainer extends StatelessWidget {
           ],
         ),
       ],
+    );
+  }
+}
+
+class DisplayResult extends StatelessWidget {
+  const DisplayResult({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Consumer<ResultTextModel>(
+      builder: (context, model, child) {
+        if (model.isLoading) {
+          // Si la aplicación está cargando, muestra un CircularProgressIndicator
+          return const Center(
+            child: SizedBox(
+              width: 50,
+              height: 50,
+              child: CircularProgressIndicator.adaptive(
+                  backgroundColor: Colors.green),
+            ),
+          );
+        } else {
+          // Si la aplicación no está cargando, muestra el contenido normal
+          return SingleChildScrollView(
+            child: Text(
+              model.resultText ?? '',
+              style: const TextStyle(fontSize: 14),
+            ),
+          );
+        }
+      },
     );
   }
 }
@@ -169,11 +195,10 @@ class ButtonWithText extends StatelessWidget {
       onTap: () async {
         //stateful logic for button tap animation
         XFile? image = await onTap!();
+        if (context.mounted) context.read<ResultTextModel>().setLoading();
         final Map<String, dynamic>? resultText =
             await useOcrWithDeviceImage(image);
-        if (context.mounted) {
-          context.read<ResultTextModel>().setResult(resultText);
-        }
+        if (context.mounted) context.read<ResultTextModel>().setResult(resultText);
       },
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -268,6 +293,7 @@ class ImageWithBorder extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () async {
+        context.read<ResultTextModel>().setLoading();
         final Map<String, dynamic>? resultText = await useOcrWithAssetsImage();
         if (context.mounted) {
           context.read<ResultTextModel>().setResult(resultText);
