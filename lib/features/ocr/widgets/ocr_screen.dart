@@ -46,21 +46,21 @@ class ResultTextContainer extends StatelessWidget {
 
     return Column(
       children: [
-        SingleChildScrollView(
-          child: Container(
-            width: 320,
-            height: 350,
-            margin: const EdgeInsets.all(12),
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              border: Border.all(
-                color: const Color.fromARGB(255, 5, 0, 0),
-                width: 2,
-              ),
+        Container(
+          width: 320,
+          height: 350,
+          margin: const EdgeInsets.all(12),
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            border: Border.all(
+              color: const Color.fromARGB(255, 5, 0, 0),
+              width: 2,
             ),
+          ),
+          child: SingleChildScrollView(
             child: Text(
-              resultText,
-              style: const TextStyle(fontSize: 12),
+              resultText ?? '',
+              style: const TextStyle(fontSize: 14),
             ),
           ),
         ),
@@ -76,7 +76,7 @@ class ResultTextContainer extends StatelessWidget {
             const SizedBox(width: 15),
             ElevatedButton(
               onPressed: () {
-                Clipboard.setData(ClipboardData(text: resultText));
+                Clipboard.setData(ClipboardData(text: resultText ?? ''));
               },
               child: const Text('COPY ALL'),
             ),
@@ -171,7 +171,7 @@ class ButtonWithText extends StatelessWidget {
         XFile? image = await onTap!();
         final Map<String, dynamic>? resultText =
             await useOcrWithDeviceImage(image);
-        context.read<ResultTextModel>().setResult(resultText.toString());
+        context.read<ResultTextModel>().setResult(resultText);
       },
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -267,7 +267,7 @@ class ImageWithBorder extends StatelessWidget {
     return GestureDetector(
       onTap: () async {
         final Map<String, dynamic>? resultText = await useOcrWithAssetsImage();
-        context.read<ResultTextModel>().setResult(resultText.toString());
+        context.read<ResultTextModel>().setResult(resultText);
       },
       child: Container(
         decoration: BoxDecoration(
@@ -285,4 +285,3 @@ class ImageWithBorder extends StatelessWidget {
     );
   }
 }
-
