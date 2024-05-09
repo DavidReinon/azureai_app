@@ -198,8 +198,9 @@ class ButtonWithText extends StatelessWidget {
         if (context.mounted) context.read<ResultTextModel>().setLoading();
         final Map<String, dynamic>? resultText =
             await useOcrWithDeviceImage(image);
-        if (context.mounted)
+        if (context.mounted) {
           context.read<ResultTextModel>().setResult(resultText);
+        }
       },
       child: Column(
         mainAxisSize: MainAxisSize.min,
