@@ -102,8 +102,8 @@ class ResultTextModel extends ChangeNotifier {
     return processedLines.join('\n');
   }
 
-  void setResult(Map<String, dynamic>? result) {
-    _jsonResult = result;
+  void setResult(Map<String, dynamic>? jsonResult) {
+    _jsonResult = jsonResult;
     _resultText = _processJsonResult();
     loading = false;
     notifyListeners();
