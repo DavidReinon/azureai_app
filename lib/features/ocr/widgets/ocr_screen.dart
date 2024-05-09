@@ -236,30 +236,30 @@ class DemoImages extends StatelessWidget {
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Center(
-              child: SizedBox(
-                height: 70, // Adjust this to the height you need
-                width: 320, // Adjust this to the width you need
-                child: ListView(
-                  scrollDirection: Axis.horizontal,
-                  children: const [
-                    ImageWithBorder(
-                        imagePath: 'assets/demo_national_identity_card.jpg',
-                        width: 100,
-                        fit: BoxFit.fitHeight),
-                    ImageWithBorder(
-                        imagePath: 'assets/demo_postit.jpg',
-                        width: 100,
-                        fit: BoxFit.fitWidth),
-                    ImageWithBorder(
-                        imagePath: 'assets/demo_recipe.jpg',
-                        width: 100,
-                        fit: BoxFit.fitHeight),
-                  ],
-                ),
-              ),
+        Center(
+          child: SizedBox(
+            height: 70, // Adjust this to the height you need
+            width: 320, // Adjust this to the width you need
+            child: ListView(
+              scrollDirection: Axis.horizontal,
+              children: const [
+                ImageWithBorder(
+                    imagePath: 'assets/demo_national_identity_card.jpg',
+                    width: 100,
+                    fit: BoxFit.fitHeight),
+                ImageWithBorder(
+                    imagePath: 'assets/demo_postit.jpg',
+                    width: 100,
+                    fit: BoxFit.fitWidth),
+                ImageWithBorder(
+                    imagePath: 'assets/demo_recipe.jpg',
+                    width: 100,
+                    fit: BoxFit.fitHeight),
+              ],
             ),
-          ],
+          ),
+        ),
+      ],
         ),
       ],
     );
