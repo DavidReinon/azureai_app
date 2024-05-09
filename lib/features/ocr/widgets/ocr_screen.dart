@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:flutter/services.dart';
@@ -197,7 +198,8 @@ class ButtonWithText extends StatelessWidget {
         if (context.mounted) context.read<ResultTextModel>().setLoading();
         final Map<String, dynamic>? resultText =
             await useOcrWithDeviceImage(image);
-        if (context.mounted) context.read<ResultTextModel>().setResult(resultText);
+        if (context.mounted)
+          context.read<ResultTextModel>().setResult(resultText);
       },
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -233,9 +235,6 @@ class DemoImages extends StatelessWidget {
             style: TextStyle(fontSize: 10, fontStyle: FontStyle.italic),
           ),
         ),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
         Center(
           child: SizedBox(
             height: 70, // Adjust this to the height you need
@@ -260,8 +259,6 @@ class DemoImages extends StatelessWidget {
           ),
         ),
       ],
-        ),
-      ],
     );
   }
 }
@@ -278,6 +275,29 @@ class ImageWithBorder extends StatelessWidget {
   final double width;
   final BoxFit fit;
 
+  Future<bool> showConfirmationDialog(BuildContext context) async {
+    return await showAdaptiveDialog<bool>(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: const Text('Confirmation'),
+            content: const Text('Do you want to analyze this image?'),
+            actions: [
+              TextButton(
+                child:
+                    const Text('Cancel', style: TextStyle(color: Colors.red)),
+                onPressed: () => Navigator.of(context).pop(false),
+              ),
+              TextButton(
+                child: const Text('Confirm',
+                    style: TextStyle(color: Color.fromARGB(255, 96, 170, 47))),
+                onPressed: () => Navigator.of(context).pop(true),
+              ),
+            ],
+          ),
+        ) ??
+        false; // Devuelve false si el usuario cierra el diálogo sin seleccionar ninguna opción
+  }
+
   Future<Map<String, dynamic>?> useOcrWithAssetsImage() async {
     final ByteData bytes = await rootBundle.load(imagePath);
     final Uint8List imageBytes = bytes.buffer.asUint8List();
@@ -292,7 +312,13 @@ class ImageWithBorder extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () async {
-        context.read<ResultTextModel>().setLoading();
+        final confirmed = await showConfirmationDialog(context);
+        if (!confirmed) {
+          return;
+        }
+        if (context.mounted) {
+          context.read<ResultTextModel>().setLoading();
+        }
         final Map<String, dynamic>? resultText = await useOcrWithAssetsImage();
         if (context.mounted) {
           context.read<ResultTextModel>().setResult(resultText);
