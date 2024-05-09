@@ -1,7 +1,7 @@
 import 'dart:convert';
+import 'dart:typed_data';
 import 'package:http/http.dart' as http;
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'dart:typed_data';
 import '../enums/ocr_service_status_enums.dart';
 
 class AzureOcrService {
@@ -72,16 +72,5 @@ class AzureOcrService {
         throw Exception('Error: ${response.body}');
       }
     }
-
-    //   final response = await http.get(url, headers: headers);
-
-    //   if (response.statusCode == 200) {
-    //     Map<String, dynamic> responseJson = jsonDecode(response.body);
-    //     print('Result: ${responseJson}\n');
-    //     print('Headers: ${response.headers}\n');
-    //     return jsonDecode(response.body);
-    //   } else {
-    //     throw Exception('Error: ${response.body}');
-    //   }
   }
 }
