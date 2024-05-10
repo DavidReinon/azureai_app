@@ -10,6 +10,25 @@ import '../models/result_text_model.dart';
 
 final azureOcrService = AzureOcrService();
 
+void showAlertDialog(BuildContext context, Map<String, String>? message) {
+  final String code = message!['code'] ?? '';
+  final String messageText = message['message'] ?? '';
+
+  showAdaptiveDialog(
+    context: context,
+    builder: (context) => AlertDialog(
+      title: const Text('Error'),
+      content: Text('$code: $messageText'),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: const Text('OK'),
+        ),
+      ],
+    ),
+  );
+}
+
 class Ocr extends StatelessWidget {
   const Ocr({super.key});
 
@@ -184,9 +203,9 @@ class ButtonWithText extends StatelessWidget {
 
     final File image = File(imageFile.path);
     final Uint8List imageBytes = await image.readAsBytes();
-    Map<String, dynamic>? result =
-        await azureOcrService.processImage(imageBytes);
-    return result;
+    bool processComplete = await azureOcrService.processImage(imageBytes);
+
+    return processComplete;
   }
 
   @override
@@ -195,11 +214,37 @@ class ButtonWithText extends StatelessWidget {
       onTap: () async {
         //stateful logic for button tap animation
         XFile? image = await onTap!();
-        if (context.mounted) context.read<ResultTextModel>().setLoading();
-        final Map<String, dynamic>? resultText =
-            await useOcrWithDeviceImage(image);
+        if (context.mounted) context.read<ResultTextModel>().setLoading(true);
+        final processComplete = await useOcrWithDeviceImage(image);
+
+        if (processComplete == null) {
+          if (context.mounted) {
+            context.read<ResultTextModel>().setLoading(false);
+          }
+          return;
+        }
+
+        if (!processComplete) {
+          if (context.mounted) {
+            showAlertDialog(context, azureOcrService.errorMessage);
+          }
+          return;
+        }
+        final Map<String, dynamic>? jsonResult = azureOcrService.jsonResult;
+        final resultText = context.watch<ResultTextModel>().resultText;
+
         if (context.mounted) {
-          context.read<ResultTextModel>().setResult(resultText);
+          context.read<ResultTextModel>().setResult(jsonResult);
+          print(resultText);
+          
+          if (resultText!.isEmpty) {
+            context.read<ResultTextModel>().setLoading(false);
+            Map<String, String> message = {
+              'code': 'NoText', 
+              'message': 'No text found in image'
+            };
+            showAlertDialog(context, message);
+          }
         }
       },
       child: Column(
@@ -299,12 +344,11 @@ class ImageWithBorder extends StatelessWidget {
         false; // Devuelve false si el usuario cierra el diálogo sin seleccionar ninguna opción
   }
 
-  Future<Map<String, dynamic>?> useOcrWithAssetsImage() async {
+  Future<bool> useOcrWithAssetsImage() async {
     final ByteData bytes = await rootBundle.load(imagePath);
     final Uint8List imageBytes = bytes.buffer.asUint8List();
 
-    Map<String, dynamic>? result;
-    result = await azureOcrService.processImage(imageBytes);
+    final bool result = await azureOcrService.processImage(imageBytes);
 
     return result;
   }
@@ -318,11 +362,19 @@ class ImageWithBorder extends StatelessWidget {
           return;
         }
         if (context.mounted) {
-          context.read<ResultTextModel>().setLoading();
+          context.read<ResultTextModel>().setLoading(true);
         }
-        final Map<String, dynamic>? resultText = await useOcrWithAssetsImage();
-        if (context.mounted) {
-          context.read<ResultTextModel>().setResult(resultText);
+
+        final processComplete = await useOcrWithAssetsImage();
+        if (processComplete) {
+          final Map<String, dynamic>? jsonResult = azureOcrService.jsonResult;
+          if (context.mounted) {
+            context.read<ResultTextModel>().setResult(jsonResult);
+          }
+        } else {
+          if (context.mounted) {
+            showAlertDialog(context, azureOcrService.errorMessage);
+          }
         }
       },
       child: Container(
