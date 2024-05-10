@@ -8,9 +8,11 @@ class AzureOcrService {
   final String? apiKey = dotenv.env['API_KEY'];
   final String? endpoint = dotenv.env['API_ENDPOINT'];
   Map<String, String>? operationHeaders;
+  Map<String, dynamic>? ocrReadErrorMessage;
 
   Future<Map<String, dynamic>> processImage(Uint8List imageBytes) async {
     await _ocrRead(imageBytes);
+    if (ocrReadErrorMessage != null) return ocrReadErrorMessage!;
     return await _ocrGetResult();
   }
 
@@ -33,9 +35,11 @@ class AzureOcrService {
     // Procesar la respuesta
     if (response.statusCode == 202) {
       operationHeaders = response.headers;
+      ocrReadErrorMessage = null;
       print('OperationId: ${operationHeaders!['operation-location']}\n');
     } else {
-      throw Exception('Error: ${response.body}');
+      operationHeaders = null;
+      ocrReadErrorMessage = jsonDecode(response.body);
     }
   }
 
@@ -68,9 +72,7 @@ class AzureOcrService {
         print('Result: ${jsonResult}\n');
         print('Headers: ${response.headers}\n');
         return jsonResult;
-      } else {
-        throw Exception('Error: ${response.body}');
-      }
+      } 
     }
   }
 }

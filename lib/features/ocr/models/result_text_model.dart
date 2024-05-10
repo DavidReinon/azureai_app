@@ -11,7 +11,7 @@ class ResultTextModel extends ChangeNotifier {
   bool get isLoading => loading;
 
   void setLoading() {
-    loading = true;
+    loading = loading ? false : true;
     notifyListeners();
   }
 

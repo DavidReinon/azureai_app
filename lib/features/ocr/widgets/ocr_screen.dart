@@ -9,6 +9,38 @@ import '../models/result_text_model.dart';
 
 final azureOcrService = AzureOcrService();
 
+void showErrorAlert(BuildContext context, Map<String, dynamic>? message) {
+  final String code = message!['code'] ?? '';
+  final String messageText = message['message'] ?? '';
+
+  showAdaptiveDialog(
+    context: context,
+    builder: (context) => AlertDialog(
+      title: const Text('Error'),
+      content: Text('$code: $messageText'),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: const Text('OK'),
+        ),
+      ],
+    ),
+  );
+}
+
+bool errorResponse(Map<String, dynamic>? response) {
+  return response?['error'] != null;
+}
+
+void handleErrorResponse(BuildContext context, Map<String, dynamic>? response) {
+  final errorMessage = response?['error'];
+  if (context.mounted) {
+    showErrorAlert(context, errorMessage);
+    context.read<ResultTextModel>().clearResult();
+    context.read<ResultTextModel>().setLoading();
+  }
+}
+
 class Ocr extends StatelessWidget {
   const Ocr({super.key});
 
@@ -195,10 +227,17 @@ class ButtonWithText extends StatelessWidget {
         //stateful logic for button tap animation
         XFile? image = await onTap!();
         if (context.mounted) context.read<ResultTextModel>().setLoading();
-        final Map<String, dynamic>? resultText =
+
+        final Map<String, dynamic>? response =
             await useOcrWithDeviceImage(image);
+
+        if (errorResponse(response)) {
+          handleErrorResponse(context, response);
+          return;
+        }
+
         if (context.mounted) {
-          context.read<ResultTextModel>().setResult(resultText);
+          context.read<ResultTextModel>().setResult(response);
         }
       },
       child: Column(
@@ -319,9 +358,16 @@ class ImageWithBorder extends StatelessWidget {
         if (context.mounted) {
           context.read<ResultTextModel>().setLoading();
         }
-        final Map<String, dynamic>? resultText = await useOcrWithAssetsImage();
+
+        final Map<String, dynamic>? response = await useOcrWithAssetsImage();
+
+        if (errorResponse(response)) {
+          handleErrorResponse(context, response);
+          return;
+        }
+
         if (context.mounted) {
-          context.read<ResultTextModel>().setResult(resultText);
+          context.read<ResultTextModel>().setResult(response);
         }
       },
       child: Container(
