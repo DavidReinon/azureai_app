@@ -232,6 +232,7 @@ class ButtonWithText extends StatelessWidget {
             await useOcrWithDeviceImage(image);
 
         if (errorResponse(response)) {
+          if (!context.mounted) return;
           handleErrorResponse(context, response);
           return;
         }
@@ -362,6 +363,7 @@ class ImageWithBorder extends StatelessWidget {
         final Map<String, dynamic>? response = await useOcrWithAssetsImage();
 
         if (errorResponse(response)) {
+          if (!context.mounted) return;
           handleErrorResponse(context, response);
           return;
         }
