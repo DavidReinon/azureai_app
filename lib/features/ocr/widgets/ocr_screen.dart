@@ -7,6 +7,7 @@ import 'package:provider/provider.dart';
 import '../services/azure_ocr_service.dart';
 import '../models/result_text_model.dart';
 
+//TODO: Controlar cuando imagen no da error, pero no se detecta texto
 final azureOcrService = AzureOcrService();
 
 void showErrorAlert(BuildContext context, Map<String, dynamic>? message) {
@@ -60,7 +61,7 @@ class Ocr extends StatelessWidget {
             ),
           ),
           DemoImages(),
-          SelectImageIcons(),
+          IconsSelectImage(),
           ResultTextContainer(),
         ],
       ),
@@ -144,8 +145,8 @@ class DisplayResult extends StatelessWidget {
   }
 }
 
-class SelectImageIcons extends StatelessWidget {
-  const SelectImageIcons({super.key});
+class IconsSelectImage extends StatelessWidget {
+  const IconsSelectImage({super.key});
 
   Future<XFile?> _openCamera() async {
     final picker = ImagePicker();
