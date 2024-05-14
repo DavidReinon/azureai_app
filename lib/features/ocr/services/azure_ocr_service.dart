@@ -29,17 +29,19 @@ class AzureOcrService {
       'Ocp-Apim-Subscription-Key': apiKey!,
     };
 
-    // Realizar la solicitud HTTP
-    final response = await http.post(url, headers: headers, body: imageBytes);
+    try {
+      final response = await http.post(url, headers: headers, body: imageBytes);
 
-    // Procesar la respuesta
-    if (response.statusCode == 202) {
-      operationHeaders = response.headers;
-      ocrReadErrorMessage = null;
-      print('OperationId: ${operationHeaders!['operation-location']}\n');
-    } else {
-      operationHeaders = null;
-      ocrReadErrorMessage = jsonDecode(response.body);
+      if (response.statusCode == 202) {
+        operationHeaders = response.headers;
+        ocrReadErrorMessage = null;
+        print('OperationId: ${operationHeaders!['operation-location']}\n');
+      } else {
+        operationHeaders = null;
+        ocrReadErrorMessage = jsonDecode(response.body);
+      }
+    } catch (e) {
+      print('Error en la solicitud HTTP: $e');
     }
   }
 
@@ -55,24 +57,28 @@ class AzureOcrService {
     };
 
     while (true) {
-      final response = await http.get(url, headers: headers);
+      try {
+        final response = await http.get(url, headers: headers);
 
-      if (response.statusCode == 200) {
-        final jsonResult = jsonDecode(response.body);
-        final status =
-            OcrServiceStatusExtension.fromString(jsonResult['status']);
+        if (response.statusCode == 200) {
+          final jsonResult = jsonDecode(response.body);
+          final status =
+              OcrServiceStatusExtension.fromString(jsonResult['status']);
 
-        // Si el procesamiento aún no ha terminado, espera un poco y luego intenta de nuevo
-        if (status == OcrServiceStatus.running ||
-            status == OcrServiceStatus.notStarted) {
-          await Future.delayed(const Duration(milliseconds: 500));
-          continue;
+          // Si el procesamiento aún no ha terminado, espera un poco y luego intenta de nuevo
+          if (status == OcrServiceStatus.running ||
+              status == OcrServiceStatus.notStarted) {
+            await Future.delayed(const Duration(milliseconds: 500));
+            continue;
+          }
+
+          print('Result: ${jsonResult}\n');
+          print('Headers: ${response.headers}\n');
+          return jsonResult;
         }
-
-        print('Result: ${jsonResult}\n');
-        print('Headers: ${response.headers}\n');
-        return jsonResult;
-      } 
+      } catch (e) {
+        print('Error en la solicitud HTTP: $e');
+      }
     }
   }
 }
