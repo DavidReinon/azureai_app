@@ -7,7 +7,6 @@ import 'package:provider/provider.dart';
 import '../services/azure_ocr_service.dart';
 import '../models/result_text_model.dart';
 
-//TODO: Controlar cuando imagen no da error, pero no se detecta texto
 final azureOcrService = AzureOcrService();
 
 void showErrorAlert(BuildContext context, String message) {
@@ -288,8 +287,8 @@ class DemoImages extends StatelessWidget {
         ),
         Center(
           child: SizedBox(
-            height: 70, // Adjust this to the height you need
-            width: 320, // Adjust this to the width you need
+            height: 70,
+            width: 320,
             child: ListView(
               scrollDirection: Axis.horizontal,
               children: const [
@@ -346,7 +345,7 @@ class ImageWithBorder extends StatelessWidget {
             ],
           ),
         ) ??
-        false; // Devuelve false si el usuario cierra el diálogo sin seleccionar ninguna opción
+        false;
   }
 
   Future<Map<String, dynamic>?> useOcrWithAssetsImage() async {
