@@ -10,15 +10,12 @@ import '../models/result_text_model.dart';
 //TODO: Controlar cuando imagen no da error, pero no se detecta texto
 final azureOcrService = AzureOcrService();
 
-void showErrorAlert(BuildContext context, Map<String, dynamic>? message) {
-  final String code = message!['code'] ?? '';
-  final String messageText = message['message'] ?? '';
-
+void showErrorAlert(BuildContext context, String message) {
   showAdaptiveDialog(
     context: context,
     builder: (context) => AlertDialog(
       title: const Text('Error'),
-      content: Text('$code: $messageText'),
+      content: Text(message),
       actions: [
         TextButton(
           onPressed: () => Navigator.of(context).pop(),
@@ -30,11 +27,24 @@ void showErrorAlert(BuildContext context, Map<String, dynamic>? message) {
 }
 
 bool errorResponse(Map<String, dynamic>? response) {
-  return response?['error'] != null;
+  if (response?['error'] != null) {
+    return true;
+  } else if (response?['analyzeResult']['readResults'][0]['lines'].isEmpty) {
+    return true;
+  }
+  return false;
 }
 
 void handleErrorResponse(BuildContext context, Map<String, dynamic>? response) {
-  final errorMessage = response?['error'];
+  String errorMessage;
+
+  if (response?['error'] != null) {
+    final String code = response?['error']!['code'] ?? '';
+    final String messageText = response?['error']['message'] ?? '';
+    errorMessage = '$code: $messageText';
+  } else {
+    errorMessage = 'No text detected in the image';
+  }
   if (context.mounted) {
     showErrorAlert(context, errorMessage);
     context.read<ResultTextModel>().clearResult();
