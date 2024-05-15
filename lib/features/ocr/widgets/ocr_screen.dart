@@ -78,8 +78,22 @@ class Ocr extends StatelessWidget {
   }
 }
 
-class ResultTextContainer extends StatelessWidget {
+class ResultTextContainer extends StatefulWidget {
   const ResultTextContainer({super.key});
+
+  @override
+  State<ResultTextContainer> createState() => _ResultTextContainerState();
+}
+
+class _ResultTextContainerState extends State<ResultTextContainer>
+    with SingleTickerProviderStateMixin {
+  late TabController _tabController;
+
+  @override
+  void initState() {
+    super.initState();
+    _tabController = TabController(length: 2, vsync: this);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -87,18 +101,40 @@ class ResultTextContainer extends StatelessWidget {
 
     return Column(
       children: [
-        Container(
-          width: 320,
-          height: 350,
-          margin: const EdgeInsets.all(12),
-          padding: const EdgeInsets.all(12),
-          decoration: BoxDecoration(
-            border: Border.all(
-              color: const Color.fromARGB(255, 5, 0, 0),
-              width: 2,
+        Padding(
+          padding: const EdgeInsets.only(top: 30.0),
+          child: Container(
+            width: 320,
+            height: 350,
+            margin: const EdgeInsets.all(12),
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              border: Border.all(
+                color: const Color.fromARGB(255, 5, 0, 0),
+                width: 2,
+              ),
+            ),
+            child: Column(
+              children: [
+                TabBar(
+                  controller: _tabController,
+                  tabs: const [
+                    Tab(text: 'Text'),
+                    Tab(text: 'Image'),
+                  ],
+                ),
+                Expanded(
+                  child: TabBarView(
+                    controller: _tabController,
+                    children: const [
+                      DisplayResult(),
+                      SelectedImage(),
+                    ],
+                  ),
+                ),
+              ],
             ),
           ),
-          child: const DisplayResult(),
         ),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -120,6 +156,22 @@ class ResultTextContainer extends StatelessWidget {
         ),
       ],
     );
+  }
+}
+
+class SelectedImage extends StatelessWidget {
+  const SelectedImage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final imageData = Provider.of<ResultTextModel>(context).imageData;
+
+    return imageData != null
+        ? Image.memory(
+            imageData,
+            fit: BoxFit.contain,
+          )
+        : const SizedBox();
   }
 }
 
@@ -218,15 +270,20 @@ class ButtonWithText extends StatelessWidget {
   final String label;
   final Future<XFile?> Function()? onTap;
 
-  useOcrWithDeviceImage(XFile? imageFile) async {
+  useOcrWithDeviceImage(XFile? imageFile, BuildContext context) async {
     if (imageFile == null) {
       return;
     }
 
     final File image = File(imageFile.path);
     final Uint8List imageBytes = await image.readAsBytes();
+
     Map<String, dynamic>? result =
         await azureOcrService.processImage(imageBytes);
+    if (context.mounted) {
+      context.read<ResultTextModel>().setImageData(imageBytes);
+    }
+
     return result;
   }
 
@@ -236,10 +293,11 @@ class ButtonWithText extends StatelessWidget {
       onTap: () async {
         //stateful logic for button tap animation
         XFile? image = await onTap!();
-        if (context.mounted) context.read<ResultTextModel>().setLoading();
+        if (!context.mounted) return;
+        context.read<ResultTextModel>().setLoading();
 
         final Map<String, dynamic>? response =
-            await useOcrWithDeviceImage(image);
+            await useOcrWithDeviceImage(image, context);
 
         if (errorResponse(response)) {
           if (!context.mounted) return;
@@ -247,9 +305,8 @@ class ButtonWithText extends StatelessWidget {
           return;
         }
 
-        if (context.mounted) {
-          context.read<ResultTextModel>().setResult(response);
-        }
+        if (!context.mounted) return;
+        context.read<ResultTextModel>().setResult(response);
       },
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -348,12 +405,17 @@ class ImageWithBorder extends StatelessWidget {
         false;
   }
 
-  Future<Map<String, dynamic>?> useOcrWithAssetsImage() async {
+  Future<Map<String, dynamic>?> useOcrWithAssetsImage(
+      BuildContext context) async {
     final ByteData bytes = await rootBundle.load(imagePath);
     final Uint8List imageBytes = bytes.buffer.asUint8List();
 
     Map<String, dynamic>? result;
     result = await azureOcrService.processImage(imageBytes);
+
+    if (context.mounted) {
+      context.read<ResultTextModel>().setImageData(imageBytes);
+    }
 
     return result;
   }
@@ -363,14 +425,12 @@ class ImageWithBorder extends StatelessWidget {
     return GestureDetector(
       onTap: () async {
         final confirmed = await showConfirmationDialog(context);
-        if (!confirmed) {
-          return;
-        }
-        if (context.mounted) {
-          context.read<ResultTextModel>().setLoading();
-        }
+        if (!confirmed) return;
+        if (!context.mounted) return;
 
-        final Map<String, dynamic>? response = await useOcrWithAssetsImage();
+        context.read<ResultTextModel>().setLoading();
+        final Map<String, dynamic>? response =
+            await useOcrWithAssetsImage(context);
 
         if (errorResponse(response)) {
           if (!context.mounted) return;
@@ -378,9 +438,8 @@ class ImageWithBorder extends StatelessWidget {
           return;
         }
 
-        if (context.mounted) {
-          context.read<ResultTextModel>().setResult(response);
-        }
+        if (!context.mounted) return;
+        context.read<ResultTextModel>().setResult(response);
       },
       child: Container(
         decoration: BoxDecoration(

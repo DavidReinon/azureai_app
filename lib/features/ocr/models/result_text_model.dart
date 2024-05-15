@@ -5,13 +5,20 @@ class ResultTextModel extends ChangeNotifier {
   String? _resultText;
   Map<String, dynamic>? _jsonResult;
   bool loading = false;
+  Uint8List? _imageData;
 
   String? get resultText => _resultText;
   Map<String, dynamic>? get jsonResult => _jsonResult;
   bool get isLoading => loading;
+  Uint8List? get imageData => _imageData;
 
   void setLoading() {
     loading = loading ? false : true;
+    notifyListeners();
+  }
+
+  void setImageData(Uint8List? data) {
+    _imageData = data;
     notifyListeners();
   }
 
