@@ -114,26 +114,7 @@ class _ResultTextContainerState extends State<ResultTextContainer>
                 width: 2,
               ),
             ),
-            child: Column(
-              children: [
-                TabBar(
-                  controller: _tabController,
-                  tabs: const [
-                    Tab(text: 'Text'),
-                    Tab(text: 'Image'),
-                  ],
-                ),
-                Expanded(
-                  child: TabBarView(
-                    controller: _tabController,
-                    children: const [
-                      DisplayResult(),
-                      SelectedImage(),
-                    ],
-                  ),
-                ),
-              ],
-            ),
+            child: ResultInTabBar(tabController: _tabController),
           ),
         ),
         Row(
@@ -159,6 +140,56 @@ class _ResultTextContainerState extends State<ResultTextContainer>
   }
 }
 
+class ResultInTabBar extends StatelessWidget {
+  const ResultInTabBar({
+    required this.tabController,
+    super.key,
+  });
+
+  final TabController tabController;
+
+  @override
+  Widget build(BuildContext context) {
+    return Consumer<ResultTextModel>(
+      builder: (context, model, child) {
+        return model.isLoading
+            ? const Center(
+                child: SizedBox(
+                  width: 50,
+                  height: 50,
+                  child: CircularProgressIndicator.adaptive(
+                    backgroundColor: Colors.green,
+                  ),
+                ),
+              )
+            : Column(
+                children: [
+                  TabBar(
+                    controller: tabController,
+                    tabs: const [
+                      Tab(text: 'Text'),
+                      Tab(text: 'Image'),
+                    ],
+                  ),
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: TabBarView(
+                        controller: tabController,
+                        children: const [
+                          DisplayResult(),
+                          SelectedImage(),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              );
+      },
+    );
+  }
+}
+
 class SelectedImage extends StatelessWidget {
   const SelectedImage({super.key});
 
@@ -180,28 +211,13 @@ class DisplayResult extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<ResultTextModel>(
-      builder: (context, model, child) {
-        if (model.isLoading) {
-          // Si la aplicación está cargando, muestra un CircularProgressIndicator
-          return const Center(
-            child: SizedBox(
-              width: 50,
-              height: 50,
-              child: CircularProgressIndicator.adaptive(
-                  backgroundColor: Colors.green),
-            ),
-          );
-        } else {
-          // Si la aplicación no está cargando, muestra el contenido normal
-          return SingleChildScrollView(
-            child: Text(
-              model.resultText ?? '',
-              style: const TextStyle(fontSize: 14),
-            ),
-          );
-        }
-      },
+    final resultText = context.watch<ResultTextModel>().resultText;
+
+    return SingleChildScrollView(
+      child: Text(
+        resultText ?? '',
+        style: const TextStyle(fontSize: 14),
+      ),
     );
   }
 }
