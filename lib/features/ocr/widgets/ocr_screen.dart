@@ -51,8 +51,8 @@ void handleErrorResponse(BuildContext context, Map<String, dynamic>? response) {
   }
 }
 
-class Ocr extends StatelessWidget {
-  const Ocr({super.key});
+class OcrScreen extends StatelessWidget {
+  const OcrScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -69,8 +69,8 @@ class Ocr extends StatelessWidget {
               style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
             ),
           ),
-          DemoImages(),
-          IconsSelectImage(),
+          DemoImagesContainer(),
+          SelectImageContainer(),
           ResultTextContainer(),
         ],
       ),
@@ -222,8 +222,8 @@ class DisplayResult extends StatelessWidget {
   }
 }
 
-class IconsSelectImage extends StatelessWidget {
-  const IconsSelectImage({super.key});
+class SelectImageContainer extends StatelessWidget {
+  const SelectImageContainer({super.key});
 
   Future<XFile?> _openCamera() async {
     final picker = ImagePicker();
@@ -343,8 +343,8 @@ class ButtonWithText extends StatelessWidget {
   }
 }
 
-class DemoImages extends StatelessWidget {
-  const DemoImages({super.key});
+class DemoImagesContainer extends StatelessWidget {
+  const DemoImagesContainer({super.key});
 
   @override
   Widget build(BuildContext context) {
