@@ -92,7 +92,7 @@ class _ResultTextContainerState extends State<ResultTextContainer>
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 2, vsync: this);
+    _tabController = TabController(length: 3, vsync: this);
   }
 
   @override
@@ -169,6 +169,7 @@ class ResultInTabBar extends StatelessWidget {
                     tabs: const [
                       Tab(text: 'Text'),
                       Tab(text: 'Image'),
+                      Tab(text: 'Details'),
                     ],
                   ),
                   Expanded(
@@ -179,6 +180,7 @@ class ResultInTabBar extends StatelessWidget {
                         children: const [
                           DisplayResult(),
                           SelectedImage(),
+                          DisplayDetails()
                         ],
                       ),
                     ),
@@ -186,6 +188,22 @@ class ResultInTabBar extends StatelessWidget {
                 ],
               );
       },
+    );
+  }
+}
+
+class DisplayDetails extends StatelessWidget {
+  const DisplayDetails({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final resultText = context.watch<ResultTextModel>().resultDetails;
+
+    return SingleChildScrollView(
+      child: Text(
+        resultText ?? '',
+        style: const TextStyle(fontSize: 14),
+      ),
     );
   }
 }

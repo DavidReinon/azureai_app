@@ -2,11 +2,13 @@ import 'package:flutter/foundation.dart';
 
 class ResultTextModel extends ChangeNotifier {
   String? _resultText;
+  String? _resultDetails;
   Map<String, dynamic>? _jsonResult;
   bool loading = false;
   Uint8List? _imageData;
 
   String? get resultText => _resultText;
+  String? get resultDetails => _resultDetails;
   Map<String, dynamic>? get jsonResult => _jsonResult;
   bool get isLoading => loading;
   Uint8List? get imageData => _imageData;
@@ -21,7 +23,7 @@ class ResultTextModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  String _processJsonResult() {
+  String _processJsonResultText() {
     if (_jsonResult == null) {
       return '';
     }
@@ -41,9 +43,36 @@ class ResultTextModel extends ChangeNotifier {
     return processedLines.join('\n');
   }
 
+  String _processJsonResultDetails() {
+    if (_jsonResult == null) {
+      return '';
+    }
+
+    // Process the JSON result
+    List<String> processedLines = [];
+    final status = _jsonResult?['status'];
+    processedLines.add('Status: $status');
+
+    final analyzeResult =
+        (_jsonResult?['analyzeResult'] as Map<String, dynamic>);
+    final version = analyzeResult['version'];
+    processedLines.add('Model Version: $version');
+
+    final readResults = analyzeResult['readResults'] as List<dynamic>;
+    final width = readResults[0]['width'];
+    final height = readResults[0]['height'];
+
+    processedLines.add('Image width: $width');
+    processedLines.add('Image height: $height');
+
+    // Return the processed string
+    return processedLines.join('\n');
+  }
+
   void setResult(Map<String, dynamic>? jsonResult) {
     _jsonResult = jsonResult;
-    _resultText = _processJsonResult();
+    _resultText = _processJsonResultText();
+    _resultDetails = _processJsonResultDetails();
     loading = false;
     notifyListeners();
   }
