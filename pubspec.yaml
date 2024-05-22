@@ -60,6 +60,7 @@ flutter:
           - assets/demo_national_identity_card.jpg
           - assets/demo_postit.jpg
           - assets/demo_recipe.jpg
+          - assets/OCR logo.png
           - .env
 
     # The following line ensures that the Material Icons font is
