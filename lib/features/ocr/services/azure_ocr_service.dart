@@ -5,8 +5,8 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import '../enums/ocr_service_status_enums.dart';
 
 class AzureOcrService {
-  final String? apiKey = dotenv.env['API_KEY'];
-  final String? endpoint = dotenv.env['API_ENDPOINT'];
+  final String? apiKey = dotenv.env['COGNITIVE_SERVICES_API_KEY'];
+  final String? endpoint = dotenv.env['COGNITIVE_SERVICES_API_ENDPOINT'];
   Map<String, String>? operationHeaders;
   Map<String, dynamic>? ocrReadErrorMessage;
 
