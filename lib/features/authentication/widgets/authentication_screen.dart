@@ -1,3 +1,5 @@
+import 'package:azureai_app/features/authentication/widgets/log_in_screen.dart';
+import 'package:azureai_app/features/authentication/widgets/sign_up_screen.dart';
 import 'package:azureai_app/features/home_page/widgets/my_home_page.dart';
 import 'package:flutter/material.dart';
 
@@ -15,7 +17,7 @@ class AuthenticationScreen extends StatelessWidget {
             Flexible(
               child: Image.asset(
                 'assets/OCR logo.png',
-                fit: BoxFit.contain,
+                width: 200,
               ),
             ),
             const SizedBox(height: 20),
@@ -24,22 +26,28 @@ class AuthenticationScreen extends StatelessWidget {
               children: [
                 ElevatedButton(
                   style: ButtonStyle(
-                    fixedSize: MaterialStateProperty.all(const Size(150, 30)),
+                    fixedSize: MaterialStateProperty.all(const Size(300, 30)),
                   ),
                   onPressed: () {
-                    // Handle login button presss
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                          builder: (context) => LogInScreen()),
+                    );
                   },
-                  child: const Text('Login'),
+                  child: const Text('Log In'),
                 ),
                 const SizedBox(height: 10),
                 ElevatedButton(
                   style: ButtonStyle(
-                    fixedSize: MaterialStateProperty.all(const Size(150, 30)),
+                    fixedSize: MaterialStateProperty.all(const Size(300, 30)),
                   ),
                   onPressed: () {
-                    // Handle register button press
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                          builder: (context) => SignUpScreen()),
+                    );
                   },
-                  child: const Text('Register'),
+                  child: const Text('Sign Up'),
                 ),
                 const SizedBox(height: 10),
                 TextButton(
@@ -47,9 +55,10 @@ class AuthenticationScreen extends StatelessWidget {
                     fixedSize: MaterialStateProperty.all(const Size(150, 30)),
                   ),
                   onPressed: () {
-                    Navigator.of(context).push(
+                    Navigator.of(context).pushReplacement(
                       MaterialPageRoute(
-                          builder: (context) => const MyHomePage()),
+                          builder: (context) => const MyHomePage()
+                          ),
                     );
                   },
                   child: const Text('Enter as Guest'),
