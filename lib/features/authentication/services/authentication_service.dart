@@ -9,7 +9,7 @@ class AuthenticationService {
 
   Future<Map<String, String>> insertUser(String name, String password) async {
     const Map<String, String> defaultErrorMessage = {
-      'error': 'Error al insertar el usuario. Intentalo mas tarde',
+      'error': 'Error inserting user. Please try again later',
     };
 
     try {
@@ -25,11 +25,11 @@ class AuthenticationService {
 
       if (response.statusCode == 201) {
         return {
-          'message': 'Usuario insertado correctamente',
+          'message': 'User inserted successfully',
         };
       } else if (response.statusCode == 409) {
         return {
-          'error': 'Este nombre ya existe. Intentalo con otro',
+          'error': 'This name already exists. Please try another one',
         };
       } else {
         return defaultErrorMessage;
