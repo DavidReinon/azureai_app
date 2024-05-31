@@ -62,57 +62,59 @@ class LogInScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(),
-      body: Padding(
-        padding: const EdgeInsets.all(30.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            const Text(
-              'Log In',
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-            ),
-            const Text(
-              'Log in to your account to acces to OCR!',
-              style: TextStyle(fontSize: 15),
-            ),
-            const SizedBox(height: 30.0),
-            Image.asset(
-              'assets/picture_avatar_green.png',
-              width: 200,
-              height: 200,
-            ),
-            const SizedBox(height: 15.0),
-            Column(
-              children: [
-                TextField(
-                  decoration: const InputDecoration(
-                    labelText: 'Name',
-                    border: OutlineInputBorder(),
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(30.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              const Text(
+                'Log In',
+                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+              ),
+              const Text(
+                'Log in to your account to acces to OCR!',
+                style: TextStyle(fontSize: 15),
+              ),
+              const SizedBox(height: 30.0),
+              Image.asset(
+                'assets/picture_avatar_green.png',
+                width: 200,
+                height: 200,
+              ),
+              const SizedBox(height: 15.0),
+              Column(
+                children: [
+                  TextField(
+                    decoration: const InputDecoration(
+                      labelText: 'Name',
+                      border: OutlineInputBorder(),
+                    ),
+                    controller: _nameController,
                   ),
-                  controller: _nameController,
-                ),
-                const SizedBox(height: 30.0),
-                TextField(
-                  decoration: const InputDecoration(
-                    labelText: 'Password',
-                    border: OutlineInputBorder(),
+                  const SizedBox(height: 30.0),
+                  TextField(
+                    decoration: const InputDecoration(
+                      labelText: 'Password',
+                      border: OutlineInputBorder(),
+                    ),
+                    controller: _passwordController,
+                    obscureText: true,
                   ),
-                  controller: _passwordController,
-                  obscureText: true,
-                ),
-                const SizedBox(height: 30.0),
-                ElevatedButton(
-                  style: ButtonStyle(
-                    fixedSize: MaterialStateProperty.all(const Size(350, 30)),
+                  const SizedBox(height: 30.0),
+                  ElevatedButton(
+                    style: ButtonStyle(
+                      fixedSize: MaterialStateProperty.all(const Size(350, 30)),
+                    ),
+                    onPressed: () {
+                      onPressed(context);
+                    },
+                    child: const Text('Log In', style: TextStyle(fontSize: 16)),
                   ),
-                  onPressed: () {
-                    onPressed(context);
-                  },
-                  child: const Text('Log In', style: TextStyle(fontSize: 16)),
-                ),
-              ],
-            ),
-          ],
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );
