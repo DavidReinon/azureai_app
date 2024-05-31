@@ -1,5 +1,4 @@
 import 'package:azureai_app/features/authentication/services/authentication_service.dart';
-import 'package:azureai_app/features/home_page/widgets/my_home_page.dart';
 import 'package:flutter/material.dart';
 
 final AuthenticationService authService = AuthenticationService();
@@ -33,9 +32,7 @@ class SignUpScreen extends StatelessWidget {
 
     if (!context.mounted) return;
     if (response['message'] != null) {
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (context) => const MyHomePage()),
-      );
+      Navigator.of(context).pop();
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -69,6 +66,12 @@ class SignUpScreen extends StatelessWidget {
               style: TextStyle(fontSize: 15),
             ),
             const SizedBox(height: 30.0),
+            Image.asset(
+              'assets/picture_avatar_green.png',
+              width: 200,
+              height: 200,
+            ),
+            const SizedBox(height: 15.0),
             Column(
               children: [
                 TextField(
