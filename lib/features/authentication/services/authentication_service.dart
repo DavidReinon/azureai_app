@@ -40,21 +40,13 @@ class AuthenticationService {
     return defaultErrorMessage;
   }
 
-  Future<bool> checkUserExists(String name) async {
-    bool userExist = false;
+  Future<http.Response> getUserByName(String name) async {
     try {
       final response = await http.get(Uri.parse('$apiUrl/name/$name'));
-
-      if (response.statusCode == 200) {
-        userExist = true;
-      } else if (response.statusCode != 404) {
-        print('Error al verificar la existencia del usuario');
-      }
+      return response;
     } catch (e) {
       print('Error de conexión: $e');
+      throw Exception('Connection error. Please try again later');
     }
-    return userExist;
   }
-
-  //TODO: ChechUserCredentials => Password
 }
