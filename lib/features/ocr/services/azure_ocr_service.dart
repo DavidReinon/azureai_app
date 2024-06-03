@@ -42,6 +42,15 @@ class AzureOcrService {
       }
     } catch (e) {
       print('Error en la solicitud HTTP: $e');
+      final errorMessage = {
+        'error': {
+          'code': 'Internal Server Error',
+          'message':
+              'There was an error processing the image. Please try again later.',
+        },
+      };
+      operationHeaders = null;
+      ocrReadErrorMessage = errorMessage;
     }
   }
 
@@ -78,6 +87,14 @@ class AzureOcrService {
         }
       } catch (e) {
         print('Error en la solicitud HTTP: $e');
+        final errorMessage = {
+          'error': {
+            'code': 'Internal Server Error',
+            'message':
+                'There was an error processing the image. Please try again later.',
+          },
+        };
+        return errorMessage;
       }
     }
   }
