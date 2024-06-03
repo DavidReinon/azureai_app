@@ -308,17 +308,23 @@ class ButtonWithText extends StatelessWidget {
     if (imageFile == null) {
       return;
     }
+    context.read<ResultTextModel>().setLoading();
 
     final File image = File(imageFile.path);
     final Uint8List imageBytes = await image.readAsBytes();
 
     Map<String, dynamic>? result =
         await azureOcrService.processImage(imageBytes);
-    if (context.mounted) {
-      context.read<ResultTextModel>().setImageData(imageBytes);
+
+    if (!context.mounted) return;
+    context.read<ResultTextModel>().setImageData(imageBytes);
+
+    if (errorResponse(result)) {
+      handleErrorResponse(context, result);
+      return;
     }
 
-    return result;
+    context.read<ResultTextModel>().setResult(result);
   }
 
   @override
@@ -328,19 +334,7 @@ class ButtonWithText extends StatelessWidget {
         //stateful logic for button tap animation
         XFile? image = await onTap!();
         if (!context.mounted) return;
-        context.read<ResultTextModel>().setLoading();
-
-        final Map<String, dynamic>? response =
-            await useOcrWithDeviceImage(image, context);
-
-        if (errorResponse(response)) {
-          if (!context.mounted) return;
-          handleErrorResponse(context, response);
-          return;
-        }
-
-        if (!context.mounted) return;
-        context.read<ResultTextModel>().setResult(response);
+        await useOcrWithDeviceImage(image, context);
       },
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -439,19 +433,23 @@ class ImageWithBorder extends StatelessWidget {
         false;
   }
 
-  Future<Map<String, dynamic>?> useOcrWithAssetsImage(
-      BuildContext context) async {
+  void useOcrWithAssetsImage(BuildContext context) async {
+    context.read<ResultTextModel>().setLoading();
+
     final ByteData bytes = await rootBundle.load(imagePath);
     final Uint8List imageBytes = bytes.buffer.asUint8List();
 
-    Map<String, dynamic>? result;
-    result = await azureOcrService.processImage(imageBytes);
+    Map<String, dynamic>? result =
+        await azureOcrService.processImage(imageBytes);
 
-    if (context.mounted) {
-      context.read<ResultTextModel>().setImageData(imageBytes);
+    if (!context.mounted) return;
+    context.read<ResultTextModel>().setImageData(imageBytes);
+
+    if (errorResponse(result)) {
+      handleErrorResponse(context, result);
+      return;
     }
-
-    return result;
+    context.read<ResultTextModel>().setResult(result);
   }
 
   @override
@@ -460,20 +458,9 @@ class ImageWithBorder extends StatelessWidget {
       onTap: () async {
         final confirmed = await showConfirmationDialog(context);
         if (!confirmed) return;
-        if (!context.mounted) return;
-
-        context.read<ResultTextModel>().setLoading();
-        final Map<String, dynamic>? response =
-            await useOcrWithAssetsImage(context);
-
-        if (errorResponse(response)) {
-          if (!context.mounted) return;
-          handleErrorResponse(context, response);
-          return;
-        }
 
         if (!context.mounted) return;
-        context.read<ResultTextModel>().setResult(response);
+        useOcrWithAssetsImage(context);
       },
       child: Container(
         decoration: BoxDecoration(
