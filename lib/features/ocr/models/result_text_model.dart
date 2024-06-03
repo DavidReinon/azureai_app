@@ -80,6 +80,8 @@ class ResultTextModel extends ChangeNotifier {
   void clearResult() {
     _resultText = null;
     _jsonResult = null;
+    _resultDetails = null;
+    _imageData = null;
     notifyListeners();
   }
 }
