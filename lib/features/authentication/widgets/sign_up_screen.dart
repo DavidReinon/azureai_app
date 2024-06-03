@@ -1,4 +1,5 @@
 import 'package:azureai_app/features/authentication/services/authentication_service.dart';
+import 'package:azureai_app/features/authentication/utils/encrypt.dart';
 import 'package:flutter/material.dart';
 
 final AuthenticationService authService = AuthenticationService();
@@ -17,6 +18,7 @@ class SignUpScreen extends StatelessWidget {
     return password == confirmPassword;
   }
 
+
   void onPressed(BuildContext context) async {
     if (!isPasswordMatch()) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -28,7 +30,7 @@ class SignUpScreen extends StatelessWidget {
     }
 
     final Map<String, String> response = await authService.insertUser(
-        _nameController.text, _passwordController.text);
+        _nameController.text, encryptPassword(_passwordController.text));
 
     if (!context.mounted) return;
     if (response['message'] != null) {
@@ -108,7 +110,8 @@ class SignUpScreen extends StatelessWidget {
                     onPressed: () {
                       onPressed(context);
                     },
-                    child: const Text('Sign Up', style: TextStyle(fontSize: 16)),
+                    child:
+                        const Text('Sign Up', style: TextStyle(fontSize: 16)),
                   ),
                 ],
               ),

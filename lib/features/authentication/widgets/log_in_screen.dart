@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:azureai_app/features/authentication/utils/encrypt.dart';
 import 'package:azureai_app/features/home_page/widgets/my_home_page.dart';
 import 'package:azureai_app/models/user.dart';
 import 'package:flutter/material.dart';
@@ -14,12 +15,13 @@ class LogInScreen extends StatelessWidget {
   final TextEditingController _passwordController = TextEditingController();
 
   bool correctPassword(String password) {
-    return password == _passwordController.text;
+    return password == encryptPassword(_passwordController.text);
   }
 
   void onPressed(BuildContext context) async {
     try {
       final response = await authService.getUserByName(_nameController.text);
+
       if (response.statusCode == 404) {
         if (!context.mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
